@@ -4,30 +4,17 @@ if(!process.argv[2]) {
     console.error('No filename provided');
     process.exit(1);
 }
-
-let bgData = require(`./${process.argv[2]}`);
-fs.writeFileSync('output.md', makeBGMarkdownTable(bgData, 'output.md'));
-
-console.log('Done');
-process.exit();
+fs.writeFileSync('output.md', makeBGMarkdownTable(require(`./${process.argv[2]}`), 'output.md'));
 
 function makeBGMarkdownTable(bgData, fileName) {
 
-    let gamesById = {};
-    let playersById = {};
-    let locationsById = {};
-    bgData.games.map((game) =>      { gamesById[game.id] = game.name; });
-    bgData.players.map((player) =>  { playersById[player.id] = player.name; });
-    bgData.locations.map((loc) =>   { locationsById[loc.id] = loc.name; });
-    
-    let prettyFile = [
+    return [ // Titles
         '# Board Game Tick List', '',
         'Date | Game | Location | Players | Winner |',
         '--- | --- | --- | --- | --- |'
-    ];
-    let plays = [];
-    bgData.plays.forEach((play) => {
+    ].concat(bgData.plays.map((play) => {
 
+        let game = bgData.games.filter(g => g.id == play.gameRefId)[0].name;
         let players = [], winners = [];
         play.playerScores.forEach(score => {
             let name = bgData.players.filter(g => g.id == score.playerRefId)[0].name
@@ -41,14 +28,12 @@ function makeBGMarkdownTable(bgData, fileName) {
         });
         if(!winners.length) { winners.push('Lost'); }
 
-        plays.push([
+        return [
             play.playDate.substring(0,10), //date,
-            (play.board) ? bgData.games.filter(g => g.id == play.gameRefId)[0].name + ` [${play.board}]` : bgData.games.filter(g => g.id == play.gameRefId)[0].name, // game
-            (play.locationRefId) ? locationsById[play.locationRefId] : '', // location
+            (play.board) ? game + ` [${play.board}]` : game, // game
+            (play.locationRefId) ? bgData.locations.filter(g => g.id == play.locationRefId)[0].name : '', // location
             players.join(', '), // players
             winners.join(', ') // winner(s)
-        ].join(' | '));
-    });
-
-    return prettyFile.concat(plays.reverse()).join('\n');
+        ].join(' | ');
+    }).reverse()).join('\n');
 }
