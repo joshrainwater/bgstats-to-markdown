@@ -13,13 +13,11 @@ function makeBGMarkdownTable(bgData, fileName) {
         let players = [], winners = [];
         play.playerScores.forEach(score => {
             let name = bgData.players.filter(g => g.id == score.playerRefId)[0].name
-            if(score.role) {
-                name += ` (${score.role})`;
-            }
+            if(score.winner) { winners.push(name); }
+            if(score.newPlayer) {   name += `🌟`; }
+            if(score.role) {        name += ` (${score.role})`; }
+            
             players.push([name, score.score].join(' '));
-            if(score.winner) {
-                winners.push(name);
-            }
         });
         if(!winners.length) { winners.push('Lost'); }
 
