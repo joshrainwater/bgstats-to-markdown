@@ -1,10 +1,5 @@
 const fs = require('fs');
-
-if(!process.argv[2]) {
-    console.error('No filename provided');
-    process.exit(1);
-}
-fs.writeFileSync('output.md', makeBGMarkdownTable(require(`./${process.argv[2]}`), 'output.md'));
+fs.writeFileSync('output.md', makeBGMarkdownTable(require(`./BGStatsExport.json`), 'output.md'));
 
 function makeBGMarkdownTable(bgData, fileName) {
 
