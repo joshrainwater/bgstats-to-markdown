@@ -6,9 +6,9 @@ if(!process.argv[2]) {
 }
 
 let bgData = require(`./${process.argv[2]}`);
-let mdString = makeBGMarkdownTable(bgData, 'table.md');
+let mdString = makeBGMarkdownTable(bgData, 'output.md');
 
-fs.writeFileSync('table.md', mdString);
+fs.writeFileSync('output.md', mdString);
 
 console.log('Done');
 process.exit();
@@ -31,34 +31,36 @@ function makeBGMarkdownTable(bgData, fileName) {
     let plays = [];
     bgData.plays.forEach((play) => {
 
-        let date = play.playDate.substring(0,10);
-        let game = gamesById[`${play.gameRefId}`];
-        if(play.board) { game+= ` [${play.board}]`}
-        let location = (play.locationRefId) ? locationsById[play.locationRefId] : '';
+        let row = [
+            play.playDate.substring(0,10), //date,
+            bgData.games.filter(g => g.id == play.gameRefId)[0].name, // game
+            (play.locationRefId) ? locationsById[play.locationRefId] : '' // location
+            // players & scores
+            // winner(s)
+        ];
+        if(play.board) { row[1] += ` [${play.board}]`}
 
         let players = [];
         let winners = [];
         play.playerScores.forEach(score => {
-            let name = playersById[score.playerRefId];
+            let name = bgData.players.filter(g => g.id == score.playerRefId)[0].name
             if(score.role) {
-                name += ` (${score.role})`;
+                name += ` [${score.role}]`;
             }
             if(score.score) {
                 players.push(`${name} ${score.score}`);
             } else {
                 players.push(`${name}`);
             }
-            if(score.winner) {
-                winners.push(name);
-            }
         });
 
         if(!winners.length) {
             winners.push('Lost');
         }
+        row.push(players.join(', '));
+        row.push(winners.join(', '));
 
-        plays.push(`${date} | ${game} | ${location} | ${players.join(', ')} | ${winners.join(', ')}`);
-
+        plays.push(row.join(' | '));
     });
 
     return prettyFile.concat(plays.reverse()).join('\n');
