@@ -1,0 +1,8 @@
+version: '3'
+services:
+  apollo:
+    image: node:latest
+    container_name: bg-stats
+    tty: true
+    volumes:
+      - ./:/usr/data
