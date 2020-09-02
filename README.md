@@ -3,5 +3,5 @@ Quick story: I used to use a straight Markdown file to store all my board game p
 
 ## To get a markdown table.
 1. Add `BGStatsExport.json` to the root.
-2. Run `node go.js`
+2. Run `node bgstats-to-markdown.js`
 3. Save `output.md` somewhere.
